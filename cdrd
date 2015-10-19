@@ -1,0 +1,200 @@
+#!/bin/sh
+#
+# cdrd is a simple CDR/SMDR logger daemon
+#
+
+# Constants
+version="0.0.1"
+
+# Default options
+name="cdrd"
+sed_cmd="sed"
+
+conf_file="/root/cdrd.conf"
+
+pid_file="/var/run/cdrd/${name}.pid"
+uucp_lock_dir="/var/spool/lock"
+output_file="/var/log/cdr"
+
+serial_line="cuau0"
+line_speed="19200"
+stty_args="crtscts -icrnl ixoff -imaxbel -brkint -icanon -isig -iexten"
+
+exclude_re="^[[:space:]]*$"
+logger_check_delay=20
+debug=0
+
+
+set -e
+#set +m
+
+[ -t 0 ] && interactive=1
+
+fn_log_msg() {
+# Args: message [level]
+# Default syslog level is "err".
+    [ $interactive -eq 1 ] && echo $1 >&2
+    logger -p user.${2:-"err"} -t "${name}[$$]" $1
+
+    return 0
+}
+
+while msg=`getopts dhvc:l:n:o:p:s:x: opt`; do
+    [ -n "$msg" ] && fn_log_msg "$msg"
+
+    case "$opt" in
+	c) opt_c=1; conf_file="$OPTARG";;
+        # \? - unknown flag
+        h|v|\?)
+            if [ $interactive -ne 1 ]; then
+		fn_log_msg "illegal command line option, exiting"
+            elif [ $opt = "v" ]; then
+		echo "cdrd $version"; exit 0
+	    else
+		printf >&2 "\
+usage: cdrd [-d] [-c conf-file] [-l serial-line] [-n name] [-o output-file]\n \
+           [-p pid-file] [-s serial-line-speed] [-x  exclude-regexp]\n \
+           [-v] [-h]\n"
+
+		[ $opt = "h" ] && exit 0
+            fi
+            exit 1;;
+    esac
+done
+OPTIND=1
+
+# Read config file
+if [ -r $conf_file ]; then
+    . $conf_file
+elif [ $opt_c -eq 1 ]; then
+    fn_log_msg "Configuration file $conf_file not found, exiting"
+    exit 1
+else 
+    fn_log_msg "Configuration file $conf_file not found, using defaults" "warn"
+fi
+
+while msg=`getopts dhvc:l:n:o:p:s:x: opt`; do
+    [ -n "$msg" ] && fn_log_msg "$msg"
+
+    case "$opt" in
+        d) debug=1;;
+        l) serial_line="$OPTARG";;
+        n) name="$OPTARG";;
+        o) output_file="$OPTARG";;
+        p) pid_file="$OPTARG";;
+        s) line_speed="$OPTARG";;
+        x) exclude_re="$OPTARG";;
+    esac
+done
+#shift `expr $OPTIND - 1`
+
+serial_line=${serial_line#/dev/}
+
+fn_log_msg "cdrd ${version}, ${serial_line} ${line_speed} baud" "notice"
+
+# Check files and paths
+which $sed_cmd >/dev/null 2>&1
+if   [ $? != 0 ]; then
+    fn_log_msg "$sed_cmd is not valid command, exiting"; exit 1
+elif [ ! -c /dev/$serial_line ]; then
+    fn_log_msg "device /dev/${serial_line} not found, exiting"; exit 1
+elif [ ! -d $uucp_lock_dir ]; then
+    fn_log_msg "lock directory ${uucp_lock_dir} not found, exiting"; exit 1
+elif [ ! -e ${output_file} ]; then
+    touch ${output_file} || (
+        fn_log_msg "unable to create output file ${output_file}, exiting"
+        exit 1
+        )
+elif [ ! -w ${output_file} ]; then
+    fn_log_msg "output file ${output_file} not writable, exiting"; exit 1
+fi
+
+# Check pid file
+if foreign_pid=`pgrep -F $pid_file 2>/dev/null`; then
+        fn_log_msg "${name} already running? (pid=${foreign_pid}), exiting"
+        exit 1
+fi
+
+lock_file="${uucp_lock_dir}/LCK..${serial_line}"
+
+fn_check_lockfile() {
+# Check/remove UUCP lock file
+
+    [ -f $lock_file ] &&
+        if pgrep -F $lock_file >/dev/null; then
+                fn_log_msg "${serial_line} busy" "warning"
+                return 1
+            else rm -f $lock_file
+        fi
+
+    return 0
+}
+
+
+# Do exit on SIGINT or SIGTERM
+trap 'signal=" on signal 2";  exit 0' 2
+trap 'signal=" on signal 15"; exit 0' 15
+
+# Terminate childs an remove pid file and lock file on exit
+trap '
+	fn_log_msg "exiting${signal}" "notice" 
+	[ $debug -gt 0 ] && fn_log_msg "terminating childs..." "debug"
+	pkill -P $$
+	[ $debug -gt 0 ] && fn_log_msg "removing pidfile..."   "debug"
+	rm -f $pid_file
+	[ $debug -gt 0 ] && fn_log_msg "removing lockfile..."  "debug"
+	fn_check_lockfile
+    ' EXIT
+
+# Create pid file
+echo $$ > $pid_file
+if [ $? != 0 ]; then
+    fn_log_msg "failed to create pid file"
+    exit 1
+fi
+
+fn_logger() {
+    # Terminate childs
+    pkill -P $$
+
+    fn_check_lockfile || return 1
+
+    # Open serial and set params
+    exec 6</dev/$serial_line
+    stty -f /dev/$serial_line $line_speed $stty_args
+
+    # Open output file
+    exec 7>>${output_file}
+
+    # Start logger process
+#    $sed_cmd -Elne "/${exclude_re}/!s/ **$//p" <&6 >&7 &
+    $sed_cmd -Elne "/${exclude_re}/!s/[[:space:]]*$//p" <&6 >&7 &
+
+    # Create UUCP lock file
+    printf %10u\\n $! > $lock_file
+    chmod 664 $lock_file
+
+    return 0
+}
+
+# Reopen output file on SIGHUP or SIGUSR1
+trap 'fn_logger' 1 30
+
+# Watchdog loop
+countdown=0
+while :; do
+    fn_logger && fn_log_msg "logger child process $! started" "notice"
+
+    # Add-on delay loop
+    countdown=$logger_check_delay
+    while [ $countdown -gt 0 ]; do
+        countdown=$(($countdown - 1))
+        sleep 1
+    done
+
+    # Check logger is alive
+    while pgrep -fng 0 $sed_cmd >/dev/null; do
+        sleep 1
+    done
+    fn_log_msg "logger child process is not running" "warning"
+done

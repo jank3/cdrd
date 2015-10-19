@@ -1,0 +1,102 @@
+.TH CDRD 1 "1 May 2012" cdrd 0.0.1 "cdrd logger daemon"
+.SH NAME
+cdrd \- simple CDR/SMDR logger daemon
+.SH SYNOPSIS
+.B cdrd
+\fB[-d] [-c\fI conf_file\fB] [-l\fI serial_line\fB] [-n\fI name\fB] [-o\fI output-file\fB] [-p\fI pid_file\fB] [-s\fI serial_line_speed\fB] [-x\fI exclude_regexp\fB] [-v] [-h]\fR
+.SH DESCRIPTION
+.B cdrd
+is a simple
+.B CDR/SMDR
+logger daemon.  It will read call records from serial port
+and store it in a file.
+.SH OPTIONS
+.IP "\fB-d\fR"
+Enable debug messages logging.
+.IP "\fB-l\fR serial_line"
+Specify the line to use.  Either of the forms like
+.B cuau0
+or
+.B /dev/cuau0
+are permitted. Default is \fBcuau0\fR.
+.IP "\fB-n\fR name"
+Sets name of master process. Default is \fBcdrd\fR.
+Can be used for capture records from several ports simultaneously.
+.IP "\fB-o\fR output-file"
+Save the output to
+.B output-file
+instead of default \fB/var/log/cdr\fR.
+.IP "\fB-p\fR pid_file"
+This option overrides default pid file name \fB/var/run/${name}.pid\fR.
+.IP "\fB-s\fR serial_line_speed"
+Sets serial line speed instead of default 19200 baud.
+.IP "\fB-x\fR exclude_regexp"
+Extended (modern) regular expression to exclude some rows from output
+(see re_format(7) for more information).
+.B '^[[:space:]]*$'
+is the default (reject blank lines).
+Can be used to reject page header/footer lines.
+.IP "\fB-v\fR"
+Print the version of
+.B cdrd
+to standard error.
+.IP "\fB-h\fR"
+Displays usage information.
+.IP "\fB-c\fR conf_file"
+Specify configuration file. Default is \fB/usr/locak/etc/cdrd.conf\fR
+If the configuration file cannot be found and "\fB-c\fR" option is not set, cdrd will use built-in defaults.
+.SH VARIABLES
+.IP "\fBcdrd_reject_re\fR"
+Environment variable. Same as \fB-x\fR option.
+.SH FILES
+.IP /usr/local/bin/cdrd
+.RS
+The Bourne's shell executable script.
+.RE
+.IP /usr/local/etc/cdrd.conf
+.RS
+cdrd's configuration file.
+Command line options take precedence over configuration file.
+.RE
+.SH EXAMPLES
+.B cdrd -l /dev/cuau1 -n smdr2 -o /var/db/cdr/cdr -s 9600
+.RS
+This will set master process name to smdr2, capture records from cuau1 serial device at 9600 baud and store it
+out in
+.B /var/db/cdr/cdr
+file.
+
+.RE
+.B cdrd_reject_re="^(-+|[[:space:]][[:blank:]]+Date[[:blank:]]+Time[[:blank:]]+\
+Ext[[:blank:]]+CO[[:blank:]]+Dial[[:blank:]]+Number[[:blank:]]+Ring[[:blank:]]+\
+Duration[[:blank:]]+Acc[[:blank:]]code[[:blank:]]+CD[[:blank:]])[[:space:]]$"
+.RS
+A strict regular expression for reject headers from Panasonic KX-TDA200 SMDR.
+.RE
+.SH MORE INFORMATION
+The directory
+.B /usr/local/share/doc/cdrd
+contains several files with additional documentation:
+
+.RE
+.I FAQ
+.RS
+cdrd FAQ
+.RE
+.I LICENSE
+.RS
+Describes the License under which
+.B cdrd
+is distributed.
+.RE
+.I README.md
+.RS
+Describes how to install, where to find it and other useful information.
+.SH "SEE ALSO"
+.BR stty(1),
+.BR cu(1)
+.SH AUTHOR
+.RE
+Alexander Moisseev <moiseev@mezonplus.ru>
+.RE
+.B https://github.com/moisseev/cdrd

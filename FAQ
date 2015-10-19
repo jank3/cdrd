@@ -1,0 +1,21 @@
+CDR FAQ
+
+Q.
+ CDR vs SMDR. What the difference?
+
+A.
+ SMDR is centered on the station, while CDR is centered on the call.
+ That is why they are called what they're called.
+ SMDR, generally, is produced in real time while cdr, generally,
+ is produced upon completion of a call. Most SMDR consumers are real
+ time applications such as CRM, operator console, other applications
+ that act on information while a call is still in progress;
+ most CDR consumers are reporting applications such as LD billing,
+ hospitality PMS, traffic studies.
+
+ Regardless of their size, most telephone systems output
+ Call Detail Records (CDR). Generally, these are created at the end of
+ a call. But on some phone systems, the data is available during the call.
+ This data is output from the phone system by a serial link known as
+ the Station Message Detail Recording port (SMDR).
+

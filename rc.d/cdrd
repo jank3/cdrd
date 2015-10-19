@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# PROVIDE: cdrd
+# REQUIRE: LOGIN
+#
+# Add the following line to /etc/rc.conf to enable cdrd:
+# cdrd_enable (bool):	   Set it to "YES" to enable cdrd.
+#                               Default is "NO".
+# cdrd_pidfile (path):	   Set full path to pid file.
+#                               Default is "/var/run/${name}.pid".
+# cdrd_outfile (path):	   Set full path to output file.
+#                               Default is "/var/log/cdr".
+# cdrd_serial_line (file): Set serial line to use.
+#                               Default is "cuad0".
+# cdrd_speed (int):	   Set connection baud rate.
+#                               Default is "19200".
+
+. /etc/rc.subr
+
+name="cdrd"
+rcvar=${name}_enable
+
+load_rc_config $name
+
+: ${cdrd_enable:="NO"}
+: ${cdrd_pidfile:="/var/run/${name}/${name}.pid"}
+: ${cdrd_outfile:="/var/log/cdr"}
+: ${cdrd_serial_line:="cuau0"}
+: ${cdrd_speed:="19200"}
+
+: ${cdrd_user="uucp"}
+: ${cdrd_group="dialer"}
+
+command="/root/cdrd"
+cdrd_flags="-l ${cdrd_serial_line} -n ${name} -o ${cdrd_outfile} -p ${cdrd_pidfile} -s ${cdrd_speed}"
+command_args="&"
+command_interpreter="/bin/sh"
+
+pidfile=${cdrd_pidfile}
+
+run_rc_command "$1"
