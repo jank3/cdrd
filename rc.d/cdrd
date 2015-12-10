@@ -7,9 +7,9 @@
 # cdrd_enable (bool):      Set it to "YES" to enable cdrd.
 #                               Default is "NO".
 # cdrd_conf_file (file):   Set full path to configuration file.
-#                               Default is "/usr/local/etc/rc.d/cdrd.conf".
+#                               Default is "/usr/local/etc/cdrd/cdrd.conf".
 # cdrd_pid_file (path):    Set full path to pid file.
-#                               Default is "/var/run/cdrd/${name}.pid".
+#                               Default is "/var/run/cdrd/cdrd.pid".
 
 . /etc/rc.subr
 
@@ -19,13 +19,13 @@ rcvar=${name}_enable
 load_rc_config $name
 
 : ${cdrd_enable:="NO"}
-: ${cdrd_conf_file:="/usr/local/etc/rc.d/${name}.conf"}
-: ${cdrd_pid_file:="/var/run/cdrd/${name}.pid"}
+: ${cdrd_conf_file:="/usr/local/etc/${name}/${name}.conf"}
+: ${cdrd_pid_file:="/var/run/${name}/${name}.pid"}
 
 : ${cdrd_user="uucp"}
 : ${cdrd_group="dialer"}
 
-command="/root/cdrd"
+command=/usr/local/bin/${name}
 #cdrd_flags="-c ${cdrd_conf_file} -l ${cdrd_serial_line} -n ${name} \
 #    -o ${cdrd_output_file} -p ${cdrd_pid_file} -s ${cdrd_line_speed}"
 cdrd_flags="-c ${cdrd_conf_file} -n ${name} -p ${cdrd_pid_file}"

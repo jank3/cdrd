@@ -10,7 +10,7 @@ version="0.0.1"
 name="cdrd"
 sed_cmd="sed"
 
-conf_file="/root/cdrd.conf"
+conf_file="/usr/local/etc/cdrd/cdrd.conf"
 
 pid_file="/var/run/cdrd/${name}.pid"
 uucp_lock_dir="/var/spool/lock"
