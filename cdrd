@@ -28,12 +28,13 @@ debug=0
 set -e
 #set +m
 
+interactive=
 [ -t 0 ] && interactive=1
 
 fn_log_msg() {
 # Args: message [level]
 # Default syslog level is "err".
-    [ $interactive -eq 1 ] && echo $1 >&2
+    [ $interactive ] && echo $1 >&2
     logger -p user.${2:-"err"} -t "${name}[$$]" $1
 
     return 0
@@ -44,7 +45,7 @@ while getopts dhvc:l:n:o:p:s:x: opt; do
 	c) opt_c=1; conf_file="$OPTARG";;
         # \? - unknown flag
         h|v|\?)
-            if [ $interactive -ne 1 ]; then
+            if [ ! "$interactive" ]; then
 		fn_log_msg "illegal command line option, exiting"
             elif [ $opt = "v" ]; then
 		echo "cdrd $version"; exit 0
