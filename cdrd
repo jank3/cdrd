@@ -39,9 +39,7 @@ fn_log_msg() {
     return 0
 }
 
-while msg=`getopts dhvc:l:n:o:p:s:x: opt`; do
-    [ -n "$msg" ] && fn_log_msg "$msg"
-
+while getopts dhvc:l:n:o:p:s:x: opt; do
     case "$opt" in
 	c) opt_c=1; conf_file="$OPTARG";;
         # \? - unknown flag
@@ -73,9 +71,7 @@ else
     fn_log_msg "Configuration file $conf_file not found, using defaults" "warn"
 fi
 
-while msg=`getopts dhvc:l:n:o:p:s:x: opt`; do
-    [ -n "$msg" ] && fn_log_msg "$msg"
-
+while getopts dhvc:l:n:o:p:s:x: opt; do
     case "$opt" in
         d) debug=1;;
         l) serial_line="$OPTARG";;
