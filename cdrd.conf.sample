@@ -1,0 +1,8 @@
+# Sample configuration file for cdrd
+
+# Panasonic KX-TDA200 SMDR
+#
+#line_speed="19200"
+#
+# Reject Panasonic KX-TDA200 SMDR headers
+#exclude_re="^(-+|[[:space:]]+Date[[:blank:]]+Time[[:blank:]]+Ext[[:blank:]]+CO[[:blank:]]+Dial[[:blank:]]+Number[[:blank:]]+Ring[[:blank:]]+Duration[[:blank:]]+Acc[[:blank:]]code[[:blank:]]+CD)[[:space:]]*$"
