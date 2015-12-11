@@ -8,7 +8,7 @@ sed_cmd="sed"
 
 pid_file="/var/run/cdrd/${name}.pid"
 uucp_lock_dir="/var/spool/lock"
-output_file="/var/log/cdr"
+output_file="/var/log/cdrd/cdr"
 
 serial_line="cuau0"
 line_speed="19200"

@@ -6,6 +6,7 @@ BINDIR ?= $(PREFIX)/bin
 ETCDIR ?= $(PREFIX)/etc/$(PROGRAM)
 MANDIR ?= $(PREFIX)/man/man1
 PIDDIR ?= /var/run/$(PROGRAM)
+LOGDIR ?= /var/log/$(PROGRAM)
 
 .PHONY: all install uninstall
 
@@ -14,7 +15,7 @@ all:
 
 install:
 	install -d $(DESTDIR)$(BINDIR) $(DESTDIR)$(ETCDIR) $(DESTDIR)$(MANDIR) || exit 1;
-	install -o uucp -g dialer -d $(DESTDIR)$(PIDDIR) || exit 1;
+	install -o uucp -g dialer -d $(DESTDIR)$(LOGDIR) $(DESTDIR)$(PIDDIR) || exit 1;
 	install $(PROGRAM) $(DESTDIR)$(BINDIR) || exit 1;
 	install -m 0644 $(PROGRAM).conf $(PROGRAM).conf.default $(DESTDIR)$(ETCDIR) || exit 1;
 	install -m 0644 $(PROGRAM).1 $(DESTDIR)$(MANDIR) || exit 1;
