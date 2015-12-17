@@ -5,7 +5,7 @@
 #line_speed="19200"
 #
 # Reject SMDR headers
-#exclude_re="^(-+|[[:space:]]+Date[[:blank:]]+Time[[:blank:]]+Ext[[:blank:]]+CO[[:blank:]]+Dial[[:blank:]]+Number[[:blank:]]+Ring[[:blank:]]+Duration[[:blank:]]+Acc[[:blank:]]code[[:blank:]]+CD)[[:space:]]*$"
+#exclude_re="^(-+|[[:space:]]+Date +Time +Ext CO +Dial Number +Ring Duration +Acc code +CD)[[:space:]]*$"
 
 # Panasonic KX-TES824, KX-TEM824
 #
