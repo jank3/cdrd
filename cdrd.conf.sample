@@ -10,4 +10,4 @@
 # Panasonic KX-TES824, KX-TEM824
 #
 # Reject SMDR headers
-#exclude_re="^(-+| +Date +Time +Ext\. +CO +Dial number +Duration +Code)$"
+#exclude_re="^(-+| +Date +Time +Ext\. +CO +Dial number +Duration +Code)?[[:space:]]*$"
