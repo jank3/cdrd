@@ -1,0 +1,11 @@
+# newsyslog configuration file for cdrd(1)
+#
+# Link (or copy) cdrd.newsyslog.conf to /usr/local/etc/newsyslog.conf.d/
+# to take care of logs rotation.
+#
+# ln -s /usr/local/etc/cdrd/cdrd.newsyslog.conf /usr/local/etc/newsyslog.conf.d
+#
+# See newsyslog.conf(5) for details.
+#
+# logfilename          [owner:group]    mode count size when  flags [/pid_file] [sig_num]
+/var/log/cdr		uucp:dialer	644  26	   *	$W1D0 JBC   /var/run/cdrd/cdrd.pid
