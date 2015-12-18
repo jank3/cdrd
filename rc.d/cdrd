@@ -1,7 +1,10 @@
 #!/bin/sh
 #
+# $FreeBSD$
+#
 # PROVIDE: cdrd
 # REQUIRE: LOGIN
+# KEYWORD: shutdown
 #
 # Add the following line to /etc/rc.conf to enable cdrd:
 # cdrd_enable (bool):      Set it to "YES" to enable cdrd.
@@ -26,8 +29,6 @@ load_rc_config $name
 : ${cdrd_group="dialer"}
 
 command=/usr/local/bin/${name}
-#cdrd_flags="-c ${cdrd_conf_file} -l ${cdrd_serial_line} -n ${name} \
-#    -o ${cdrd_output_file} -p ${cdrd_pid_file} -s ${cdrd_line_speed}"
 cdrd_flags="-c ${cdrd_conf_file} -n ${name} -p ${cdrd_pid_file}"
 command_args="&"
 command_interpreter="/bin/sh"
