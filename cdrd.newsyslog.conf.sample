@@ -1,7 +1,7 @@
 # newsyslog configuration file for cdrd(1)
 #
 # Link (or copy) cdrd.newsyslog.conf to /usr/local/etc/newsyslog.conf.d/
-# to take care of logs rotation.
+# to take care of log rotation.
 #
 # ln -s /usr/local/etc/cdrd/cdrd.newsyslog.conf /usr/local/etc/newsyslog.conf.d
 #
