@@ -129,8 +129,8 @@ fn_check_lockfile() {
 
 
 # Do exit on SIGINT or SIGTERM
-trap 'signal=" on signal 2";  exit 0' 2
-trap 'signal=" on signal 15"; exit 0' 15
+trap 'signal=" on SIGINT";  exit 0' INT
+trap 'signal=" on SIGTERM"; exit 0' TERM
 
 # Terminate childs an remove pid file and lock file on exit
 trap '
@@ -171,16 +171,21 @@ fn_logger() {
     printf %10u\\n $! > $lock_file
     chmod 664 $lock_file
 
-    return 0
+    fn_log_msg "logger child process $! started" "notice"
 }
 
 # Reopen output file on SIGHUP or SIGUSR1
-trap 'fn_logger' 1 30
+fn_restart_logger() {
+    fn_log_msg "restarting logger${signal}" "notice"
+    fn_logger
+}
+trap 'signal=" on SIGHUP";  fn_restart_logger' HUP
+trap 'signal=" on SIGUSR1"; fn_restart_logger' USR1
 
 # Watchdog loop
 countdown=0
 while :; do
-    fn_logger && fn_log_msg "logger child process $! started" "notice"
+    fn_logger && :
 
     # Add-on delay loop
     countdown=$logger_check_delay
